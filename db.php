@@ -7,8 +7,15 @@ session_start();
 $config = require __DIR__ . '/config.php';
 
 try {
-    $port = $config['db_port'] ?? 3306;
-    $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $config['db_host'], $port, $config['db_name']);
+    $driver = $config['db_driver'] ?? 'mysql';
+    $port = $config['db_port'];
+    
+    if ($driver === 'pgsql') {
+        $dsn = sprintf('pgsql:host=%s;port=%d;dbname=%s', $config['db_host'], $port, $config['db_name']);
+    } else {
+        $dsn = sprintf('mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4', $config['db_host'], $port, $config['db_name']);
+    }
+    
     $pdo = new PDO($dsn, $config['db_user'], $config['db_pass'], [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -50,12 +57,9 @@ function require_auth(PDO $pdo): array
         exit;
     }
     if ($user['status'] === 'blocked') {
-        // Agar bloklangan bo'lsa ham login sahifasiga
         unset($_SESSION['user_id']);
         header('Location: ' . base_url('login.php'));
         exit;
     }
     return $user;
 }
-
-
