@@ -1,0 +1,18 @@
+parameters:
+    mailer.from: '%env(MAILER_FROM)%'
+
+services:
+    App\Service\EmailService:
+        arguments:
+            $mailFrom: '%mailer.from%'
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
